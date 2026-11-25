@@ -191,3 +191,4 @@ currently no test suite or runnable entry point.
 
 - [Language design](language.md)
 - [Development roadmap](roadmap.md)
+- [Lesson plan](lessons.md)

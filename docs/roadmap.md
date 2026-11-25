@@ -1,7 +1,8 @@
 # Development Roadmap
 
 The repository is in the design stage. All implementation milestones below are
-pending; their order expresses dependencies, not release dates.
+pending; their order expresses dependencies, not release dates. The
+[lesson plan](lessons.md) divides each milestone into lessons.
 
 ## Division of work
 

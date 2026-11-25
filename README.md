@@ -43,6 +43,7 @@ same test programs will run on both runtimes and must behave identically.
 - [Language design](docs/language.md): proposed syntax, lexical rules, planned features, and open decisions.
 - [Architecture](docs/architecture.md): language division, component boundaries, bytecode contract, and verification approach.
 - [Development roadmap](docs/roadmap.md): implementation milestones and possible extensions.
+- [Lesson plan](docs/lessons.md): the roadmap divided into lessons, with estimated counts.
 
 ## Repository layout
 
@@ -55,6 +56,7 @@ Pylox/
 `-- docs/
     |-- architecture.md
     |-- language.md
+    |-- lessons.md
     `-- roadmap.md
 ```
 

@@ -1,29 +1,69 @@
 # Architecture
 
-Status: proposed. No runtime components have been implemented.
+Status: proposed. No components have been implemented.
 
 ## Goals
 
-Pylox is a personal programming language project with an interpreter written in
-Python. The initial implementation targets a small scripting language, a
-tree-walking execution model, and no third-party runtime dependencies.
+Pylox is a personal programming language project implemented mainly in Python.
+Python owns the front end, the reference interpreter, and the bytecode compiler.
+A bytecode virtual machine and its garbage collector are planned in C.
 
+The initial implementation targets a small scripting language and a
+tree-walking execution model in Python with no third-party runtime dependencies.
 The design separates source processing from execution so each component can be
-tested independently. Python owns memory management in the initial runtime.
+tested independently.
+
+## Language division
+
+| Part | Language | Reason |
+| --- | --- | --- |
+| Lexer, parser, resolver, type checker | Python | Program analysis is easiest to write, test, and change in Python |
+| Tree-walking interpreter | Python | Defines the language semantics; Python manages its memory |
+| Bytecode compiler | Python | Shares the AST and diagnostics with the rest of the front end |
+| Virtual machine and garbage collector | C | Needs direct control over memory layout, stacks, and pointers |
+| Prelude | Pylox | Library functions exercise the language itself |
+
+C was chosen over Rust, Zig, C++, and Go for the virtual machine because a
+garbage collector needs unrestricted pointer manipulation, the C toolchain is
+stable and widely available, and Python's standard library can load C shared
+libraries through `ctypes` without third-party packages.
+
+The standard-library-only constraint applies to both sides: the Python code uses
+only the Python standard library, and the C code uses only the C standard
+library. Building the virtual machine will require a C compiler; running the
+Python interpreter will not.
 
 ## Execution pipeline
 
 ```text
-Source text -> Lexer -> Tokens -> Parser -> AST -> Interpreter -> Result
+Source text -> Lexer -> Tokens -> Parser -> AST -> Resolver -> Type checker
+                                                                    |
+                         +------------------------------------------+
+                         |                                          |
+                         v                                          v
+              Tree-walking interpreter                      Bytecode compiler
+                     (Python)                                   (Python)
+                         |                                          |
+                         v                                          v
+                      Result                                 Bytecode file
+                                                                    |
+                                                                    v
+                                                      Virtual machine + GC (C)
+                                                                    |
+                                                                    v
+                                                                 Result
 ```
 
-Lexical scope resolution will become a separate pass between parsing and
-interpretation when functions and closures require it. A future bytecode backend
-may consume the same AST; it is outside the initial implementation scope.
+The first milestone implements only the lexer, parser, and tree-walking
+interpreter. The resolver arrives with functions and closures. The type checker,
+bytecode compiler, and virtual machine arrive in later milestones; see the
+[roadmap](roadmap.md).
 
 ## Component boundaries
 
 The following paths are planned, not existing modules.
+
+### Python package
 
 | Path | Responsibility |
 | --- | --- |
@@ -35,8 +75,23 @@ The following paths are planned, not existing modules.
 | `pylox/interpreter.py` | AST evaluation and runtime operations |
 | `pylox/errors.py` | Structured language diagnostics |
 | `pylox/resolver.py` | Future lexical binding and static semantic checks |
+| `pylox/typecheck.py` | Future static type inference |
+| `pylox/bytecode.py` | Future instruction set definition and bytecode file serialization |
+| `pylox/compiler.py` | Future translation from AST to bytecode |
+| `pylox/prelude/` | Future library functions written in Pylox |
 | `pylox/repl.py` | Interactive input and persistent session state |
 | `pylox/__main__.py` | Command-line entry point and script execution |
+
+### C virtual machine
+
+| Path | Responsibility |
+| --- | --- |
+| `vm/` | Future C sources and build files for the virtual machine |
+
+The virtual machine is expected to contain a bytecode loader, a value and object
+representation, an instruction dispatch loop with call frames, a garbage
+collector, and a command-line entry point. File names are left to the
+implementation.
 
 Modules should be added with their implementation and tests. Empty scaffolding is
 not required to establish the design.
@@ -56,6 +111,27 @@ not required to establish the design.
   boundary renders them without exposing a Python traceback for expected user
   errors. Unexpected implementation failures must remain diagnosable.
 
+## Bytecode contract
+
+The bytecode format is the only interface between the Python and C parts. The C
+code does not read source text or the AST.
+
+- The format carries a version number. The virtual machine rejects a file whose
+  version it does not support.
+- The instruction set is defined in one place. The C header for opcodes should be
+  generated from the Python definition rather than maintained by hand.
+- Bytecode retains source locations so that runtime errors from the virtual
+  machine report the same positions as the tree-walking interpreter.
+- Both runtimes must produce the same output, the same error messages, and the
+  same exit status for the same program.
+
+Open decisions:
+
+- Whether the virtual machine is a standalone executable that reads bytecode
+  files, a shared library loaded by Python through `ctypes`, or both.
+- The value representation in C, such as tagged unions or NaN boxing.
+- How built-in functions and the prelude are provided to the virtual machine.
+
 ## Verification approach
 
 Implementation work should introduce tests alongside each component:
@@ -65,10 +141,15 @@ Implementation work should introduce tests alongside each component:
 - Parser cases cover precedence, grouping, statement boundaries, and diagnostics.
 - Runtime cases cover bindings, evaluation, branch selection, loops, and errors.
 - End-to-end cases cover script output, exit status, and REPL state across inputs.
+- Differential cases run each test program through the tree-walking interpreter
+  and the virtual machine and fail on any difference in output or exit status.
+- Garbage collector cases include a stress mode that collects on every
+  allocation.
 
 The test runner, supported Python versions, package metadata, and CI configuration
-will be established with the first implementation. There is currently no test
-suite or runnable entry point.
+will be established with the first implementation. The C compiler requirements
+and build commands will be established with the virtual machine. There is
+currently no test suite or runnable entry point.
 
 ## Related documents
 

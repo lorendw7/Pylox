@@ -79,11 +79,47 @@ Scanning `let x = 10` is expected to produce `LET`, `IDENTIFIER`, `ASSIGN`,
 
 ## Later language extensions
 
+None of the features in this section are part of the initial language contract.
+Syntax shown here is a proposal. See the [roadmap](roadmap.md) for sequencing.
+
+### Functions and collections
+
 Functions will use `fn` as the proposed shared keyword for named and anonymous
 forms. Function syntax, returns, closures, arrays, dictionaries, logical
 operators, and `for` loops require separate design decisions and tests.
 
-Higher-order functions, expression-valued blocks, immutable bindings, pattern
-matching, algebraic data types, pipelines, composition, partial application, and
-tail-call optimization remain possible extensions. They are not part of the
-initial language contract. See the [roadmap](roadmap.md) for sequencing.
+### Planned features
+
+| Feature | Summary | Implemented in |
+| --- | --- | --- |
+| Higher-order prelude | `map`, `filter`, and `reduce` written in Pylox | Pylox prelude |
+| Pattern matching | `match` over literals, arrays, and dictionaries | Python front end and interpreter |
+| Pipelines | Pass a value through a chain of calls | Python front end |
+| String interpolation | Embed expressions inside string literals | Python lexer and parser |
+| Destructuring | Bind several names from an array or dictionary | Python front end |
+| Ranges | A compact form for integer sequences | Python front end |
+| Generators and coroutines | `yield` suspends a function; it can be resumed later | C virtual machine |
+| Tail-call optimization | Tail calls reuse the current call frame | C virtual machine |
+| Type inference | Types are inferred and checked before execution | Python type checker |
+
+Open decisions for these features:
+
+- The pipeline operator and whether it passes the value as the first or last
+  argument.
+- Whether `match` must be exhaustive and how a failed match is reported.
+- The delimiter for interpolated expressions and its interaction with string
+  escapes.
+- Whether `yield` makes a function a generator implicitly or a marker is
+  required.
+- Whether type annotations are allowed, and how inference treats dictionaries
+  and other dynamic values.
+- Whether generators and tail calls are also implemented in the tree-walking
+  interpreter.
+
+### Possible extensions
+
+A C foreign function interface, compile-time evaluation, units of measure,
+algebraic data types, immutable bindings, expression-valued blocks, currying,
+partial application, composition, green threads with channels, and time-travel
+debugging remain possible. Macros, algebraic effects, and continuations are also
+possible, but at most one of the three should be attempted.

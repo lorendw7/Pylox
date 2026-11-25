@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pylox — 一门小语言的建造现场</title>
 <meta name="description" content="Pylox 是一门个人脚本语言：前端和参考解释器用 Python，字节码虚拟机用 C。目前处于设计阶段。">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23121412'/%3E%3Ctext x='5' y='23' font-family='monospace' font-size='20' font-weight='700' fill='%23a6e36a'%3Ep_%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2312263f'/%3E%3Ctext x='5' y='23' font-family='monospace' font-size='20' font-weight='700' fill='%23ffd43b'%3Ep_%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="style.css">
 <script>
 (function () {
@@ -20,7 +20,7 @@
 
 <header class="top">
   <div class="wrap top-in">
-    <a class="logo" href="#" aria-label="Pylox">pylox<span class="cursor" aria-hidden="true"></span></a>
+    <a class="logo" href="#" aria-label="Pylox"><span class="logo-py">py</span>lox<span class="cursor" aria-hidden="true"></span></a>
     <nav class="top-nav">
       <a href="#demo" data-i18n="nav.demo">演示</a>
       <a href="#split" data-i18n="nav.split">分工</a>
@@ -39,7 +39,7 @@
 
 <section class="hero wrap">
   <p class="pill"><span class="pulse" aria-hidden="true"></span><span data-i18n="hero.status">设计阶段</span> · <span id="hero-count"></span></p>
-  <h1 data-i18n="hero.title">一门小语言的<br>建造现场</h1>
+  <h1 data-i18n="hero.title">一门小语言的<br><span class="mark">建造现场</span></h1>
   <p class="lead" data-i18n="hero.lead">Pylox 是一门从零开始做的脚本语言。负责“读懂程序”的部分用 Python 写，负责“跑得快”的虚拟机用 C 写。现在还一行实现代码都没有，这个网站会跟着它一起长大。</p>
   <div class="cta">
     <a class="btn primary" href="#demo" data-i18n="hero.cta1">看一段程序怎么被运行 ↓</a>
@@ -163,7 +163,7 @@
 <footer class="foot">
   <div class="wrap foot-in">
     <div>
-      <p class="logo small">pylox</p>
+      <p class="logo small"><span class="logo-py">py</span>lox</p>
       <p class="foot-note" data-i18n="foot.note">个人项目 · MIT 许可证</p>
     </div>
     <ul class="foot-links">

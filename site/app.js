@@ -19,7 +19,7 @@
   var EN = {
     'nav.demo': 'Demo', 'nav.split': 'Design', 'nav.progress': 'Progress', 'nav.features': 'Features',
     'hero.status': 'Design stage',
-    'hero.title': 'A small language,<br>under construction',
+    'hero.title': 'A small language,<br><span class="mark">under construction</span>',
     'hero.lead': 'Pylox is a scripting language built from scratch. The parts that understand a program are written in Python; the virtual machine that runs it fast is written in C. No implementation code exists yet, and this site will grow along with it.',
     'hero.cta1': 'Watch a program run ↓', 'hero.cta2': 'The 61-lesson plan',
     'demo.title': 'From text to result in three steps',

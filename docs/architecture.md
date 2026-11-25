@@ -125,12 +125,48 @@ code does not read source text or the AST.
 - Both runtimes must produce the same output, the same error messages, and the
   same exit status for the same program.
 
-Open decisions:
+### Virtual machine form
 
-- Whether the virtual machine is a standalone executable that reads bytecode
-  files, a shared library loaded by Python through `ctypes`, or both.
+The virtual machine is a standalone executable. The Python compiler writes a
+bytecode file and the command-line entry point runs the executable on it as a
+subprocess.
+
+- A crash in C code ends the subprocess only; the Python side can still report
+  the failure.
+- The executable can run directly under a debugger, a memory checker, or an
+  address sanitizer.
+- Both runtimes present the same shape to tests: one command, its output, and
+  its exit status.
+
+The C code keeps the runtime core separate from a thin `main` entry point, so a
+shared library loaded through `ctypes` can be added later without restructuring.
+A shared library is not part of the planned work.
+
+### Open decisions
+
 - The value representation in C, such as tagged unions or NaN boxing.
 - How built-in functions and the prelude are provided to the virtual machine.
+
+## Reference interpreter parity
+
+The tree-walking interpreter implements every supported language feature,
+including those motivated by the virtual machine, so that all features can be
+tested differentially. It aims for correct semantics, not speed.
+
+- Tail calls use a trampoline: a call in tail position returns a pending-call
+  object that the calling loop executes, so tail recursion does not grow the
+  Python stack.
+- Each generator runs in its own Python thread and hands control back and forth
+  with locks from the standard library. Threads are daemon threads, because a
+  generator that is abandoned before it finishes leaves its thread suspended.
+
+## Type checking
+
+Type checking is an optional pass. When requested, a program that fails the
+check is rejected before execution; otherwise the program runs without static
+checks. Both runtimes remain dynamically typed and the checker never changes
+runtime behavior, so it does not affect differential tests. The command-line
+flag that requests the check will be chosen with the implementation.
 
 ## Verification approach
 

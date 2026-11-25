@@ -70,8 +70,10 @@ machine.
 - Specify the bytecode format: instruction set, constant pool, function
   representation, file layout, and a version number.
 - Implement the compiler from AST to bytecode in Python.
-- Implement the virtual machine in C: bytecode loader, value representation,
-  instruction dispatch loop, call frames, closures, and runtime errors.
+- Implement the virtual machine in C as a standalone executable that reads
+  bytecode files: bytecode loader, value representation, instruction dispatch
+  loop, call frames, closures, and runtime errors.
+- Run the executable as a subprocess from the Python command-line entry point.
 - Implement a mark-and-sweep garbage collector in C.
 - Add differential tests that run the same programs through the tree-walking
   interpreter and the virtual machine and compare output and exit status.
@@ -81,26 +83,28 @@ Completion means every supported language feature runs on both runtimes with
 identical observable behavior, and the baseline workloads from milestone 3 have
 measurements for both.
 
-## 6. Virtual machine features (C)
+## 6. Generators and tail calls (C and Python)
 
 - Generators and coroutines: functions that suspend with `yield` and resume
-  later, each with its own stack.
+  later. The virtual machine gives each its own stack; the tree-walking
+  interpreter runs each in its own Python thread.
 - Tail-call optimization so that tail-recursive functions run in constant stack
-  space.
+  space. The virtual machine reuses the call frame; the tree-walking interpreter
+  uses a trampoline.
 
-The semantics are specified in the language document first. Whether the
-tree-walking interpreter also implements these features, or they are tested on
-the virtual machine alone, is an open decision.
+The semantics are specified in the language document first. Both runtimes
+implement both features so that they are covered by differential tests.
 
 ## 7. Static type inference (Python)
 
 - Infer types without mandatory annotations and report type errors before
   execution (Hindley-Milner style inference).
-- Run as a separate pass after resolution; both runtimes consume the same
-  checked program.
+- Accept optional annotations and check them against the inferred types.
+- Require homogeneous arrays and dictionaries; provide no dynamic `any` type.
+- Run as an optional pass after resolution. Unchecked programs still run, and
+  the checker never changes runtime behavior.
 
-The interaction between inference and dynamic features such as dictionaries
-needs a design before implementation starts.
+The rules are recorded in the [language design](language.md).
 
 ## 8. Backend experiment
 

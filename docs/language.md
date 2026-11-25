@@ -98,9 +98,9 @@ operators, and `for` loops require separate design decisions and tests.
 | String interpolation | Embed expressions inside string literals | Python lexer and parser |
 | Destructuring | Bind several names from an array or dictionary | Python front end |
 | Ranges | A compact form for integer sequences | Python front end |
-| Generators and coroutines | `yield` suspends a function; it can be resumed later | C virtual machine |
-| Tail-call optimization | Tail calls reuse the current call frame | C virtual machine |
-| Type inference | Types are inferred and checked before execution | Python type checker |
+| Generators and coroutines | `yield` suspends a function; it can be resumed later | Both runtimes |
+| Tail-call optimization | Tail calls do not grow the call stack | Both runtimes |
+| Type inference | Types are inferred and checked before execution when requested | Python type checker |
 
 Open decisions for these features:
 
@@ -111,10 +111,20 @@ Open decisions for these features:
   escapes.
 - Whether `yield` makes a function a generator implicitly or a marker is
   required.
-- Whether type annotations are allowed, and how inference treats dictionaries
-  and other dynamic values.
-- Whether generators and tail calls are also implemented in the tree-walking
-  interpreter.
+- The syntax of type annotations.
+
+### Type inference rules
+
+- Type annotations are optional. An annotation is checked against the inferred
+  type; without one, the type is inferred.
+- Arrays are homogeneous: all elements have one type.
+- Dictionaries are homogeneous: all keys have one type and all values have one
+  type. Record-like data with differently typed fields is left to a later
+  feature such as algebraic data types.
+- There is no dynamic `any` type.
+- Type checking is an optional pass and does not change runtime behavior.
+  Programs that are not checked keep the dynamic behavior of the runtimes,
+  including mixed-type arrays and dictionaries.
 
 ### Possible extensions
 

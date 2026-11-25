@@ -9,8 +9,8 @@ but has its own syntax and development direction.
 
 ## Status
 
-**Design stage.** This repository currently contains project documentation and
-an MIT license. The lexer, parser, interpreter, command-line interface, virtual
+**Design stage.** This repository currently contains project documentation, a
+project website, and an MIT license. The lexer, parser, interpreter, command-line interface, virtual
 machine, and tests have not been implemented. There is no installable package or
 runnable command at this stage.
 
@@ -45,19 +45,39 @@ same test programs will run on both runtimes and must behave identically.
 - [Development roadmap](docs/roadmap.md): implementation milestones and possible extensions.
 - [Lesson plan](docs/lessons.md): the roadmap divided into lessons, with estimated counts.
 
+## Website
+
+The project website lives in `site/`. It is a static page in Chinese and English
+with no build step and no dependencies; open `site/index.html` in a browser to
+view it. A GitHub Actions workflow publishes it to GitHub Pages on each push to
+`main` that changes `site/`, once Pages is enabled for the repository with
+GitHub Actions as the source.
+
+The pipeline demo on the site is a scripted illustration for one fixed program,
+not a running interpreter. After each lesson, update `completed` in
+`site/data.js` to advance the progress map.
+
 ## Repository layout
 
 ```text
 Pylox/
+|-- .github/
+|   `-- workflows/
+|       `-- pages.yml
 |-- .gitattributes
 |-- .gitignore
 |-- LICENSE
 |-- README.md
-`-- docs/
-    |-- architecture.md
-    |-- language.md
-    |-- lessons.md
-    `-- roadmap.md
+|-- docs/
+|   |-- architecture.md
+|   |-- language.md
+|   |-- lessons.md
+|   `-- roadmap.md
+`-- site/
+    |-- app.js
+    |-- data.js
+    |-- index.html
+    `-- style.css
 ```
 
 Implementation modules and tests will be added as development begins. Proposed

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pylox — 一门小语言的建造现场</title>
+<meta name="description" content="Pylox 是一门个人脚本语言：前端和参考解释器用 Python，字节码虚拟机用 C。目前处于设计阶段。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23121412'/%3E%3Ctext x='5' y='23' font-family='monospace' font-size='20' font-weight='700' fill='%23a6e36a'%3Ep_%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem('pylox-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="logo" href="#" aria-label="Pylox">pylox<span class="cursor" aria-hidden="true"></span></a>
+    <nav class="top-nav">
+      <a href="#demo" data-i18n="nav.demo">演示</a>
+      <a href="#split" data-i18n="nav.split">分工</a>
+      <a href="#progress" data-i18n="nav.progress">进度</a>
+      <a href="#features" data-i18n="nav.features">功能</a>
+    </nav>
+    <div class="top-tools">
+      <button id="lang-btn" class="tool" type="button" aria-label="Switch language">EN</button>
+      <button id="theme-btn" class="tool" type="button" aria-label="切换深浅色">◐</button>
+      <a class="tool" href="https://github.com/lorendw7/Pylox">GitHub</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="hero wrap">
+  <p class="pill"><span class="pulse" aria-hidden="true"></span><span data-i18n="hero.status">设计阶段</span> · <span id="hero-count"></span></p>
+  <h1 data-i18n="hero.title">一门小语言的<br>建造现场</h1>
+  <p class="lead" data-i18n="hero.lead">Pylox 是一门从零开始做的脚本语言。负责“读懂程序”的部分用 Python 写，负责“跑得快”的虚拟机用 C 写。现在还一行实现代码都没有，这个网站会跟着它一起长大。</p>
+  <div class="cta">
+    <a class="btn primary" href="#demo" data-i18n="hero.cta1">看一段程序怎么被运行 ↓</a>
+    <a class="btn" href="https://github.com/lorendw7/Pylox/blob/main/docs/lessons.md" data-i18n="hero.cta2">61 节课的计划</a>
+  </div>
+</section>
+
+<section id="demo" class="wrap sec">
+  <div class="sec-head">
+    <p class="kicker">01</p>
+    <h2 data-i18n="demo.title">从文字到结果，一共三步</h2>
+    <p class="sec-sub" data-i18n="demo.sub">解释器先把源码切成 token，再拼成语法树，最后沿着树执行。点“运行”看这段程序走完全程。</p>
+  </div>
+
+  <div class="demo">
+    <div class="demo-bar">
+      <div class="tabs" role="tablist">
+        <button class="tab" type="button" data-phase="0"><span class="tab-n">1</span><span data-i18n="demo.tab0">切成 token</span></button>
+        <button class="tab" type="button" data-phase="1"><span class="tab-n">2</span><span data-i18n="demo.tab1">拼成语法树</span></button>
+        <button class="tab" type="button" data-phase="2"><span class="tab-n">3</span><span data-i18n="demo.tab2">执行</span></button>
+      </div>
+      <div class="demo-ctl">
+        <button id="play" class="btn primary small" type="button">▶ 运行</button>
+        <button id="step" class="btn small" type="button" data-i18n="demo.step">单步</button>
+        <button id="reset" class="btn small" type="button" data-i18n="demo.reset">重置</button>
+      </div>
+    </div>
+    <div class="track" aria-hidden="true"><div id="track-fill"></div></div>
+    <div class="demo-body">
+      <div class="pane">
+        <p class="pane-title" data-i18n="demo.source">源码</p>
+        <pre id="source" class="code" tabindex="0"></pre>
+      </div>
+      <div class="pane">
+        <p class="pane-title" id="out-title"></p>
+        <div id="stage" class="stage"></div>
+      </div>
+    </div>
+    <p id="caption" class="caption" aria-live="polite"></p>
+  </div>
+  <p class="note" data-i18n="demo.note">这是示意演示：每一步都是为这段程序预先编排好的，token 名称等细节以最终实现为准。等解释器写出来，这里会换成在浏览器里真正运行的 Pylox。</p>
+</section>
+
+<section id="split" class="wrap sec">
+  <div class="sec-head">
+    <p class="kicker">02</p>
+    <h2 data-i18n="split.title">三种语言，各管一段</h2>
+    <p class="sec-sub" data-i18n="split.sub">Python 是主体。C 只负责虚拟机和垃圾回收。两者之间唯一的接口是字节码文件。</p>
+  </div>
+
+  <ul class="legend">
+    <li><i class="sw py"></i>Python</li>
+    <li><i class="sw c"></i>C</li>
+    <li><i class="sw lox"></i>Pylox</li>
+  </ul>
+
+  <div class="flow">
+    <div class="flow-row">
+      <span class="node plain" data-i18n="split.src">源码</span><span class="arr">→</span>
+      <span class="node py" data-i18n="split.lexer">词法分析</span><span class="arr">→</span>
+      <span class="node py" data-i18n="split.parser">语法解析</span><span class="arr">→</span>
+      <span class="node py" data-i18n="split.resolver">作用域解析</span><span class="arr">→</span>
+      <span class="node py" data-i18n="split.types">类型检查</span>
+    </div>
+    <div class="fork" aria-hidden="true"><span></span><span></span></div>
+    <div class="lanes">
+      <div class="lane">
+        <p class="lane-name" data-i18n="split.laneA">路线 A · 参考实现</p>
+        <div class="flow-row">
+          <span class="node py" data-i18n="split.interp">树遍历解释器</span><span class="arr">→</span>
+          <span class="node plain" data-i18n="split.result">结果</span>
+        </div>
+        <p class="lane-desc" data-i18n="split.laneAdesc">直接沿着语法树执行。慢，但最容易写对，用来定义“正确答案”。</p>
+      </div>
+      <div class="lane">
+        <p class="lane-name" data-i18n="split.laneB">路线 B · 字节码</p>
+        <div class="flow-row">
+          <span class="node py" data-i18n="split.compiler">字节码编译器</span><span class="arr">→</span>
+          <span class="node file" data-i18n="split.file">字节码文件</span><span class="arr">→</span>
+          <span class="node c" data-i18n="split.vm">虚拟机 + 垃圾回收</span><span class="arr">→</span>
+          <span class="node plain" data-i18n="split.result">结果</span>
+        </div>
+        <p class="lane-desc" data-i18n="split.laneBdesc">先翻译成紧凑的指令，再交给 C 写的虚拟机执行，内存也由它自己回收。</p>
+      </div>
+    </div>
+    <div class="same">
+      <span class="eq" aria-hidden="true">=</span>
+      <p data-i18n="split.same"><b>两条路线的结果必须一模一样。</b>同一批测试程序会在两边各跑一次，输出或退出码有任何不同，就说明有 bug。</p>
+    </div>
+    <div class="prelude">
+      <span class="node lox" data-i18n="split.prelude">预置库</span>
+      <p data-i18n="split.preludeDesc"><code>map</code>、<code>filter</code>、<code>reduce</code> 这类库函数用 Pylox 自己写，顺便检验这门语言够不够用。</p>
+    </div>
+  </div>
+</section>
+
+<section id="progress" class="wrap sec">
+  <div class="sec-head">
+    <p class="kicker">03</p>
+    <h2 data-i18n="prog.title">进度：每节课点亮一个点</h2>
+    <p class="sec-sub" data-i18n="prog.sub">整个计划拆成 61 节课，每节约两小时，结束时都要有能运行的代码和通过的测试。点一下圆点看那节课做什么。</p>
+  </div>
+  <div class="prog-top">
+    <p class="count"><span id="done-n">0</span><span class="count-of"> / 61</span></p>
+    <div id="lesson-info" class="lesson-info" aria-live="polite"></div>
+  </div>
+  <div id="map" class="map"></div>
+</section>
+
+<section id="features" class="wrap sec">
+  <div class="sec-head">
+    <p class="kicker">04</p>
+    <h2 data-i18n="feat.title">打算做的功能</h2>
+    <p class="sec-sub" data-i18n="feat.sub">下面这些全部是计划，目前都还不能用。标签表示它主要在哪一侧实现。</p>
+  </div>
+  <div id="feat-grid" class="feat-grid"></div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div>
+      <p class="logo small">pylox</p>
+      <p class="foot-note" data-i18n="foot.note">个人项目 · MIT 许可证</p>
+    </div>
+    <ul class="foot-links">
+      <li><a href="https://github.com/lorendw7/Pylox/blob/main/docs/language.md" data-i18n="foot.lang">语言设计</a></li>
+      <li><a href="https://github.com/lorendw7/Pylox/blob/main/docs/architecture.md" data-i18n="foot.arch">架构</a></li>
+      <li><a href="https://github.com/lorendw7/Pylox/blob/main/docs/roadmap.md" data-i18n="foot.road">路线图</a></li>
+      <li><a href="https://github.com/lorendw7/Pylox/blob/main/docs/lessons.md" data-i18n="foot.lessons">课程计划</a></li>
+      <li><a href="https://github.com/lorendw7/Pylox">GitHub</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
